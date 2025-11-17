@@ -12,6 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lsmapp.BottomNavBar
 import com.example.lsmapp.R
+import com.example.lsmapp.ui.screens.senas.components.SenaDetailDialog
 
 @Composable
 fun SenasScreen(
@@ -34,6 +38,8 @@ fun SenasScreen(
     val senas by viewModel.senas.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val filteredSenas = viewModel.getFilteredSenas()
+    
+    var selectedSena by remember { mutableStateOf<Sena?>(null) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -70,10 +76,21 @@ fun SenasScreen(
                 items(filteredSenas) { sena ->
                     SenaCard(
                         sena = sena,
-                        onClick = { onSenaClick(sena) }
+                        onClick = { 
+                            selectedSena = sena
+                            onSenaClick(sena)
+                        }
                     )
                 }
             }
+        }
+        
+        // Mostrar el dialog cuando se selecciona una seña
+        selectedSena?.let { sena ->
+            SenaDetailDialog(
+                sena = sena,
+                onDismiss = { selectedSena = null }
+            )
         }
     }
 }
