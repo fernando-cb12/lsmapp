@@ -47,27 +47,31 @@ fun BottomNavBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 55.dp),
+            .padding(horizontal = 32.dp, vertical = 40.dp),
         contentAlignment = Alignment.Center
     ) {
         Surface(
             shape = RoundedCornerShape(50.dp),
             color = Color.White,
-            tonalElevation = 12.dp
+            tonalElevation = 12.dp,
+            modifier = Modifier.fillMaxWidth(0.85f)
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                horizontalArrangement = Arrangement.spacedBy(35.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 navItems.forEachIndexed { index, item ->
                     val isSelected = selectedItem == index
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
+                            .weight(1f)
                             .clip(CircleShape)
                             .clickable { selectedItem = index }
                             .background(if (isSelected) Color(0xFF008080) else Color.Transparent)
-                            .padding(10.dp)
+                            .padding(12.dp)
                     ) {
                         Icon(
                             imageVector = item.icon,
