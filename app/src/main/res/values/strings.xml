@@ -7,4 +7,7 @@
     <string name="already_have_account_login">Already have an account? Log in</string>
     <string name="register_button_description">Register</string>
     <string name="foro_de_inclusion_tec_handle">@forodeinclusiontec</string>
+    <string name="bottom_nav_list">List</string>
+    <string name="bottom_nav_hand">Hand</string>
+    <string name="bottom_nav_profile">Profile</string>
 </resources>
