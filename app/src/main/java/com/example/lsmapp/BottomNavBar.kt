@@ -1,5 +1,6 @@
 package com.example.lsmapp
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 data class NavItem(
-    val label: String,
+    @StringRes val label: Int,
     val icon: ImageVector,
     val route: String
 )
@@ -38,9 +38,9 @@ data class NavItem(
 @Composable
 fun BottomNavBar() {
     val navItems = listOf(
-        NavItem(stringResource(id = R.string.bottom_nav_list), Icons.Default.List, "list"),
-        NavItem(stringResource(id = R.string.bottom_nav_hand), Icons.Outlined.BackHand, "hand"),
-        NavItem(stringResource(id = R.string.bottom_nav_profile), Icons.Default.Face, "profile")
+        NavItem(R.string.bottom_nav_list, Icons.Default.List, "list"),
+        // NavItem(R.string.bottom_nav_hand, Icons.Outlined.BackHand, "hand"),
+        NavItem(R.string.bottom_nav_profile, Icons.Default.Face, "profile")
     )
     var selectedItem by remember { mutableIntStateOf(0) }
 
@@ -71,7 +71,7 @@ fun BottomNavBar() {
                     ) {
                         Icon(
                             imageVector = item.icon,
-                            contentDescription = item.label,
+                            contentDescription = stringResource(id = item.label),
                             tint = if (isSelected) Color.White else Color.DarkGray
                         )
                     }

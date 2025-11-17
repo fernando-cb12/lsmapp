@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,18 +8,21 @@ plugins {
 
 android {
     namespace = "com.example.lsmapp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 34
 
+    val localProps = Properties()
+    localProps.load(project.rootProject.file("local.properties").inputStream())
     defaultConfig {
         applicationId = "com.example.lsmapp"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${localProps["SUPABASE_URL"]}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProps["SUPABASE_ANON_KEY"]}\"")
     }
 
     buildTypes {
@@ -38,10 +43,20 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,6 +73,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    //supabase
     implementation("io.github.jan-tennert.supabase:auth-kt:3.2.6")
     implementation("io.github.jan-tennert.supabase:postgrest-kt:3.2.6")
     implementation("io.github.jan-tennert.supabase:storage-kt:3.2.6")
