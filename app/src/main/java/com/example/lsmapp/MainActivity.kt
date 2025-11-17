@@ -46,3 +46,5 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+SupabaseClient.initialize(this)

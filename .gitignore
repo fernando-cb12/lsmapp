@@ -25,3 +25,4 @@ Thumbs.db
 *.log
 
 captures/
+./app/src/main/res/values/secrets.xml
