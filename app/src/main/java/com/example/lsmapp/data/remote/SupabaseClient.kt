@@ -1,10 +1,11 @@
 package com.example.lsmapp.data.remote
 
-import com.example.lsmapp.BuildConfig
-import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import com.example.lsmapp.BuildConfig
+
 
 object SupabaseClient {
     val client = createSupabaseClient(
@@ -16,3 +17,4 @@ object SupabaseClient {
         install(Storage)
     }
 }
+

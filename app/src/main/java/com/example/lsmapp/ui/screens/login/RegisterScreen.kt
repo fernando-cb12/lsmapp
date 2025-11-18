@@ -1,7 +1,5 @@
 package com.example.lsmapp.ui.screens.login
 
-
-import CustomInputField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +16,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -28,8 +25,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lsmapp.R
+import com.example.lsmapp.data.repository.AuthRepository
 import kotlinx.coroutines.flow.collectLatest
-import com.example.lsmapp.ui.screens.login.components.*
 
 @Composable
 fun RegisterScreen(
@@ -49,7 +46,7 @@ fun RegisterScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = PrimaryDarkGrey
+        containerColor = Color(0xFF2C2C2C)
     ) { paddingValues ->
 
         Column(
@@ -62,8 +59,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            // ---------- Logo ----------
-            // Mantén este tamaño FIJO
             Box(
                 modifier = Modifier
                     .height(200.dp)
@@ -75,17 +70,12 @@ fun RegisterScreen(
                     painter = painterResource(R.drawable.logo),
                     contentDescription = "Logo",
                     contentScale = ContentScale.Crop,
-                    // Force the image to occupy a huge space, which will then be cropped
                     modifier = Modifier.size(10000.dp)
                 )
             }
 
-
-
-
             Spacer(modifier = Modifier.height(100.dp))
 
-            // Email
             CustomInputField(
                 value = email,
                 onValueChange = viewModel::updateEmail,
@@ -96,7 +86,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Password
             CustomInputField(
                 value = password,
                 onValueChange = viewModel::updatePassword,
@@ -108,7 +97,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Confirm Password
             CustomInputField(
                 value = confirmPassword,
                 onValueChange = viewModel::updateConfirmPassword,
@@ -120,10 +108,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Link para ir al login
             Text(
                 text = "Already have an account? Log in",
-                color = TextLinkColor,
+                color = Color(0xFF8A8A8A),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .padding(vertical = 10.dp)
@@ -132,12 +119,11 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // Botón de registrar
             Box(
                 modifier = Modifier
                     .size(60.dp)
                     .clickable { viewModel.register() }
-                    .background(LoginButtonColor, CircleShape),
+                    .background(Color(0xFF8A8A8A), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -152,7 +138,7 @@ fun RegisterScreen(
 
             Text(
                 text = "@forodeinclusiontec",
-                color = TextLinkColor.copy(alpha = 0.7f),
+                color = Color(0xFF8A8A8A).copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 30.dp)
             )
@@ -160,11 +146,42 @@ fun RegisterScreen(
     }
 }
 
+@Composable
+private fun CustomInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: androidx.compose.ui.text.input.VisualTransformation =
+        androidx.compose.ui.text.input.VisualTransformation.None
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text(placeholder, color = Color.Gray) },
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier.height(56.dp),
+        keyboardOptions = keyboardOptions,
+        visualTransformation = visualTransformation,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFF0F0F0),
+            unfocusedContainerColor = Color(0xFFF0F0F0),
+            cursorColor = Color.Black,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black
+        ),
+        singleLine = true
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun RegisterScreenPreview() {
     RegisterScreen(
-        viewModel = RegisterViewModel(),
+        viewModel = RegisterViewModel(AuthRepository()),
         onNavigateToHome = {},
         onNavigateToLogin = {}
     )

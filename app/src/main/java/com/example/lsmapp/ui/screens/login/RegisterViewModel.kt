@@ -2,12 +2,13 @@ package com.example.lsmapp.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.lsmapp.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     private val _email = MutableStateFlow("")
     val email = _email.asStateFlow()
@@ -18,7 +19,6 @@ class RegisterViewModel : ViewModel() {
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword = _confirmPassword.asStateFlow()
 
-    // Evento de navegación al completar registro
     private val _navigateToHome = MutableSharedFlow<Unit>()
     val navigateToHome = _navigateToHome
 
@@ -28,9 +28,11 @@ class RegisterViewModel : ViewModel() {
 
     fun register() {
         viewModelScope.launch {
-            // Luego aquí agregas Firebase o tu backend real
             if (password.value == confirmPassword.value && password.value.isNotEmpty()) {
-                _navigateToHome.emit(Unit)
+                val result = authRepository.signUp(email.value, password.value)
+                if (result.isSuccess) {
+                    _navigateToHome.emit(Unit)
+                }
             }
         }
     }

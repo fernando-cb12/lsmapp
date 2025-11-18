@@ -1,3 +1,4 @@
+/*
 package com.example.lsmapp
 
 import androidx.annotation.StringRes
@@ -86,3 +87,4 @@ fun BottomNavBar() {
 private fun BottomNavBarPreview() {
     BottomNavBar()
 }
+*/

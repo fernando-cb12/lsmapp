@@ -1,5 +1,7 @@
-package com.example.lsmapp.ui.screens.login.components
+package com.example.lsmapp.ui.screens.login
 
+import LoginViewModel
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,10 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +24,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lsmapp.R
+import com.example.lsmapp.data.repository.AuthRepository
+import com.example.lsmapp.ui.screens.login.LoginState
+
 
 @Composable
 fun LoginScreen(
@@ -34,9 +36,9 @@ fun LoginScreen(
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
+    val loginState by viewModel.loginState.collectAsState()
 
-    // --- The duplicate declaration that was here should be removed ---
-
+    // Navigation effect
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collect {
             onNavigateToHome()
@@ -45,7 +47,7 @@ fun LoginScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = PrimaryDarkGrey
+        containerColor = Color(0xFF2C2C2C)
     ) { paddingValues ->
 
         Column(
@@ -58,26 +60,25 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(80.dp))
 
+            // Logo Box
             Box(
                 modifier = Modifier
                     .height(200.dp)
                     .fillMaxWidth()
-                    .graphicsLayer(clip = false), // Correctly allows drawing outside bounds
+                    .graphicsLayer(clip = false),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(R.drawable.logo),
                     contentDescription = "Logo",
-                    // Tell the image to scale up and crop itself
                     contentScale = ContentScale.Crop,
-                    // Force the image to occupy a huge space, which will then be cropped
                     modifier = Modifier.size(10000.dp)
                 )
             }
 
-
             Spacer(modifier = Modifier.height(100.dp))
 
+            // Email Input
             CustomInputField(
                 value = email,
                 onValueChange = viewModel::updateEmail,
@@ -88,6 +89,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Password Input
             CustomInputField(
                 value = password,
                 onValueChange = viewModel::updatePassword,
@@ -99,28 +101,49 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Sign Up Label
             Text(
                 text = "Sign Up",
-                color = TextLinkColor,
+                color = Color(0xFF8A8A8A),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.clickable { onNavigateToRegistration() }
             )
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            
+            // Login Button
             Box(
                 modifier = Modifier
                     .size(60.dp)
-                    .clickable { viewModel.login() }
-                    .background(LoginButtonColor, CircleShape),
+                    .clickable(enabled = loginState !is LoginState.Loading) {
+                        viewModel.login()
+                    }
+                    .background(Color(0xFF8A8A8A), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Login",
-                    tint = Color.Black,
-                    modifier = Modifier.size(30.dp)
+                if (loginState is LoginState.Loading) {
+                    CircularProgressIndicator(
+                        color = Color.Black,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(28.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "Login",
+                        tint = Color.Black,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+
+            // Error Message
+            if (loginState is LoginState.Error) {
+                Text(
+                    text = (loginState as LoginState.Error).message,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 16.dp)
                 )
             }
 
@@ -128,13 +151,14 @@ fun LoginScreen(
 
             Text(
                 text = "@forodeinclusiontec",
-                color = TextLinkColor.copy(0.7f),
+                color = Color(0xFF8A8A8A).copy(0.7f),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 30.dp)
             )
         }
     }
 }
+
 @Composable
 private fun CustomInputField(
     value: String,
@@ -154,8 +178,8 @@ private fun CustomInputField(
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = InputLightColor,
-            unfocusedContainerColor = InputLightColor,
+            focusedContainerColor = Color(0xFFF0F0F0),
+            unfocusedContainerColor = Color(0xFFF0F0F0),
             cursorColor = Color.Black,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
@@ -166,17 +190,13 @@ private fun CustomInputField(
     )
 }
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 private fun LoginScreenPreview() {
-    // You can wrap your screen in your app's theme if you have one
-    // LsmappTheme {
     LoginScreen(
-        // Since this is just a preview, you can pass in a mock or empty ViewModel
-        viewModel = LoginViewModel(),
+        viewModel = LoginViewModel(AuthRepository()),
         onNavigateToHome = {},
         onNavigateToRegistration = {}
     )
 }
-
-
