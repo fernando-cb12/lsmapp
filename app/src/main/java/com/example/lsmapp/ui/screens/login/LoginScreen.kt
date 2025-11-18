@@ -21,11 +21,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lsmapp.BuildConfig
 import com.example.lsmapp.R
+// import com.example.lsmapp.data.remote.SupabaseClient
 import com.example.lsmapp.data.repository.AuthRepository
 import com.example.lsmapp.ui.screens.login.LoginState
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 
 
 @Composable
@@ -166,8 +175,8 @@ private fun CustomInputField(
     placeholder: String,
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    visualTransformation: androidx.compose.ui.text.input.VisualTransformation =
-        androidx.compose.ui.text.input.VisualTransformation.None
+    visualTransformation: VisualTransformation =
+        VisualTransformation.None
 ) {
     TextField(
         value = value,
@@ -190,10 +199,10 @@ private fun CustomInputField(
     )
 }
 
-@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 private fun LoginScreenPreview() {
+
     LoginScreen(
         viewModel = LoginViewModel(AuthRepository()),
         onNavigateToHome = {},

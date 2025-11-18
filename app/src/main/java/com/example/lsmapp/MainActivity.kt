@@ -1,5 +1,6 @@
 package com.example.lsmapp
 
+import LoginViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lsmapp.data.repository.AuthRepository
+import com.example.lsmapp.ui.screens.login.LoginScreen
+import com.example.lsmapp.ui.screens.login.LoginViewModelFactory
 import com.example.lsmapp.ui.theme.LsmappTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +24,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LsmappTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+
+                // Creamos el repositorio real
+                val authRepository = AuthRepository()
+
+                // Creamos el ViewModel con factory
+                val loginViewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = LoginViewModelFactory(authRepository)
+                )
+
+
+                LoginScreen(
+                    viewModel = loginViewModel,
+                    onNavigateToHome = {
+                        // Navegación REAL
+                        println("Navigating to Home")
+                    },
+                    onNavigateToRegistration = {
+                        // Navegación REAL
+                        println("Navigating to Registration")
+                    }
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LsmappTheme {
-        Greeting("Android")
     }
 }
