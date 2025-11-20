@@ -1,4 +1,7 @@
 
 <resources>
     <string name="app_name">lsm-app</string>
+    <string name="supabase_url">https://dervnjkshlnntwloyzen.supabase.co</string>
+    <string name="supabase_anon_key">sb_publishable_NhAtUUmZnJEosYJF_VDMeA_lSFhFfM7</string>
+    <string name="google_server_client_id">400187479750-l3ifrmg56qlnuggfuten373bv6cg9bpd.apps.googleusercontent.com</string>
 </resources>

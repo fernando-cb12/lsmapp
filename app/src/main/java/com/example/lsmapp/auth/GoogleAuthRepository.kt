@@ -13,17 +13,20 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 data class SupabaseSession(
     val access_token: String,
     val refresh_token: String,
+    val expires_in: Int? = null,
+    val token_type: String? = null,
+    val provider: String? = null,
     val user: JsonObject
 )
 
 class GoogleAuthRepository(
-    private val context: Context,
     private val supabaseUrl: String,
     private val supabaseAnonKey: String
 ) {
@@ -33,60 +36,59 @@ class GoogleAuthRepository(
         }
     }
 
-    suspend fun signInWithGoogleIdToken(idToken: String): Flow<GoogleLoginState> = flow {
-        try {
-            emit(GoogleLoginState.Loading)
+    /**
+     * Intercambia el idToken (proporcionado por GoogleSignIn) por una sesión de Supabase.
+     * Lanza Exception si hay error.
+     */
+    suspend fun exchangeIdTokenForSession(idToken: String): SupabaseSession {
+        val url = "$supabaseUrl/auth/v1/token?grant_type=id_token"
 
-            val response = httpClient.post("$supabaseUrl/auth/v1/token?grant_type=id_token") {
-                header("apikey", supabaseAnonKey)
-                header("Content-Type", "application/json")
-                setBody(mapOf(
-                    "id_token" to idToken,
-                    "provider" to "google"
-                ))
-            }
-
-            if (response.status.isSuccess()) {
-                val session: SupabaseSession = response.body()
-                addUserToUsersTable(session)
-                emit(GoogleLoginState.Success(session))
-            } else {
-                emit(GoogleLoginState.Error("Authentication failed"))
-            }
-        } catch (e: Exception) {
-            emit(GoogleLoginState.Error(e.message ?: "Unknown error"))
+        val response = httpClient.post(url) {
+            header("apikey", supabaseAnonKey)
+            header("Content-Type", "application/json")
+            setBody(mapOf(
+                "id_token" to idToken,
+                "provider" to "google"
+            ))
         }
+
+        if (!response.status.isSuccess()) {
+            val bodyText = try { response.body<String>() } catch (e: Exception) { "" }
+            throw Exception("Supabase token exchange failed: ${response.status}. $bodyText")
+        }
+
+        // Parse response as SupabaseSession
+        val session: SupabaseSession = response.body()
+        return session
     }
 
-    private suspend fun addUserToUsersTable(session: SupabaseSession) {
+    /**
+     * Upsert minimal user row into public.users using PostgREST (rest/v1/users).
+     * Use Prefer: resolution=merge-duplicates to upsert.
+     * This call is best-effort: no exception thrown to avoid breaking login flow.
+     */
+    suspend fun upsertUserFromSession(session: SupabaseSession) {
         try {
-            val userId = session.user["id"]?.jsonPrimitive?.contentOrNull ?: return
-            val email = session.user["email"]?.jsonPrimitive?.contentOrNull
-            // Name can be found in the user_metadata from the Google login
-            val name = (session.user["user_metadata"] as? JsonObject)?.get("name")?.jsonPrimitive?.contentOrNull
+            val userObj = session.user.jsonObject
+            val userId = userObj["id"]?.jsonPrimitive?.contentOrNull ?: return
+            val email = userObj["email"]?.jsonPrimitive?.contentOrNull
+            val metadata = userObj["user_metadata"]?.jsonObject
+            val name = metadata?.get("name")?.jsonPrimitive?.contentOrNull
 
-            val userPayload = mutableMapOf<String, Any?>("user_id" to userId)
-            email?.let { userPayload["email"] = it }
-            name?.let { userPayload["name"] = it }
+            val payload = mutableMapOf<String, Any?>("user_id" to userId)
+            email?.let { payload["email"] = it }
+            name?.let { payload["name"] = it }
 
             httpClient.post("$supabaseUrl/rest/v1/users") {
                 header("apikey", supabaseAnonKey)
                 header("Authorization", "Bearer ${session.access_token}")
                 header("Content-Type", "application/json")
-                // Using "resolution=merge-duplicates" will upsert the record,
-                // preventing errors if the user already exists.
                 header("Prefer", "resolution=merge-duplicates")
-                setBody(userPayload.filterValues { it != null })
+                setBody(payload.filterValues { it != null })
             }
         } catch (e: Exception) {
-            // Not re-throwing the exception so that the login flow does not fail if this call fails
-            println("Failed to add user to DB: ${e.message}")
+            // Log but don't rethrow: user upsert is non-fatal for login
+            println("Failed to upsert user: ${e.message}")
         }
     }
-}
-
-sealed class GoogleLoginState {
-    object Loading : GoogleLoginState()
-    data class Success(val session: SupabaseSession) : GoogleLoginState()
-    data class Error(val message: String) : GoogleLoginState()
 }
