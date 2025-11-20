@@ -1,4 +1,4 @@
-package com.example.lsmapp.ui.screens.senas
+package com.example.lsmapp.senas
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

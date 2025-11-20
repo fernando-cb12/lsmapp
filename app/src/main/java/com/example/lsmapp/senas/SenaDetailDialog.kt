@@ -1,4 +1,4 @@
-package com.example.lsmapp.ui.screens.senas.components
+package com.example.lsmapp.senas
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.lsmapp.R
-import com.example.lsmapp.ui.screens.senas.Sena
+import com.example.lsmapp.senas.Sena
 
 @Composable
 fun SenaDetailDialog(

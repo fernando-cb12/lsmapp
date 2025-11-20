@@ -1,4 +1,4 @@
-package com.example.lsmapp.ui.screens.senas
+package com.example.lsmapp.senas
 
 data class Sena(
     val id: Int,
