@@ -93,4 +93,11 @@ dependencies {
 
     //TokenStore
     implementation("androidx.security:security-crypto:1.1.0-alpha03")
+
+
+    //DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.9.4")
 }
