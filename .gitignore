@@ -26,3 +26,5 @@ Thumbs.db
 
 captures/
 ./app/src/main/res/values/secrets.xml
+
+.env

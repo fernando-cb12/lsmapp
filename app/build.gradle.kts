@@ -20,7 +20,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["appAuthRedirectScheme"] = "io.supabase.ingredicheck"
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.example.lsmapp"
         buildConfigField("String", "SUPABASE_URL", "\"${localProps["SUPABASE_URL"]}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProps["SUPABASE_ANON_KEY"]}\"")
     }
@@ -67,18 +67,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     // Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.auth.kt)
 
     // Supabase
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:1.4.7")
-    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.4.7")
-    implementation("io.github.jan-tennert.supabase:realtime-kt:1.4.7")
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.auth.kt)
 
-    // Ktor for HTTP requests
-    implementation("io.ktor:ktor-client-android:2.3.7")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    // Ktor engine
+    implementation(libs.ktor.client.okhttp)
 
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
