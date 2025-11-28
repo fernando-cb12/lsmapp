@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material3)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,9 +70,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // Google Sign-In
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
+    // implementation(libs.androidx.credentials)
+    // implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.auth.kt)
+
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+
 
     // Supabase
     implementation(platform(libs.supabase.bom))

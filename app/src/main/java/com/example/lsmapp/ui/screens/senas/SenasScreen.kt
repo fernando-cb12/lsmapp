@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.lsmapp.BottomNavBar
 import com.example.lsmapp.R
 import com.example.lsmapp.ui.screens.senas.components.SenaDetailDialog
 
@@ -44,7 +43,7 @@ fun SenasScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFF47525E),
-        bottomBar = { BottomNavBar() }
+        // bottomBar = { BottomNavBar() }
     ) { paddingValues ->
         Column(
             modifier = Modifier
