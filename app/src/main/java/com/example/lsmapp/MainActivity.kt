@@ -4,14 +4,35 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.lsmapp.composables.MainScaffold
+import com.example.lsmapp.navigation.Route
+import com.example.lsmapp.screens.LoginScreen
+//import com.example.lsmapp.screens.RegisterScreen
+import com.example.lsmapp.login.RegisterScreen
 import com.example.lsmapp.ui.theme.LsmappTheme
+import com.example.lsmapp.viewModel.AppViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +41,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             LsmappTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    //AppRoot(
+                        //modifier = Modifier.padding(innerPadding)
+                    //)
+                    RegisterScreen()
                 }
             }
         }
@@ -31,18 +52,95 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun AppRoot(modifier: Modifier = Modifier) {
+
+    val vm: AppViewModel = viewModel()
+    val nav = rememberNavController()
+
+    NavHost(navController = nav, startDestination = Route.Splash.route) {
+        composable(Route.Splash.route) {
+            SplashScreen(
+                vm = vm,
+                nav = nav
+            )
+        }
+
+        // AUTH FLOW (sin Drawer/BottomBar)
+        composable(Route.Auth.route) {
+            AuthNavHost(
+                onLoggedIn = {
+                    vm.login()
+                    nav.navigate(Route.Main.route) {
+                        popUpTo(Route.Splash.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+
+        // MAIN FLOW (con Scaffold + Drawer + BottomBar)
+        composable(Route.Main.route) {
+            MainScaffold(
+                onLogoutClick = { vm.logout() },
+                onNavigateToAuth = {
+                    nav.navigate(Route.Auth.route) { popUpTo(0) } // limpia back stack
+                }
+            )
+        }
+    }
+
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    LsmappTheme {
-        Greeting("Android")
-        Greeting("Android")
+fun AuthNavHost(onLoggedIn: () -> Unit) {
+    val nav = rememberNavController()
+    NavHost(navController = nav, startDestination = Route.Login.route) {
+        composable(Route.Login.route) {
+            LoginScreen(
+                onLogin = { onLoggedIn() },
+                onGoToRegister = { nav.navigate(Route.Register.route) }
+            )
+        }
+        composable(Route.Register.route) {
+            //RegisterScreen(
+              //  onRegistered = { onLoggedIn() },
+                //onBackToLogin = { nav.popBackStack() }
+            //)
+        }
     }
 }
+
+@Composable
+fun SplashScreen(vm: AppViewModel, nav: NavHostController) {
+
+    val state by vm.auth.collectAsState()
+
+
+    when {
+
+        state.isLoading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(Modifier.height(12.dp))
+                    Text("Cargando...")
+                }
+            }
+        }
+
+        else -> {
+            if (state.isLoggedIn) {
+                nav.navigate(Route.Main.route) {
+                    popUpTo(Route.Splash.route) { inclusive = true }
+                }
+            } else {
+                nav.navigate(Route.Auth.route) {
+                    popUpTo(Route.Splash.route) { inclusive = true }
+                }
+            }
+        }
+    }
+
+}
+
+

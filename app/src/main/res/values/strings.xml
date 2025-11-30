@@ -1,13 +1,7 @@
+
 <resources>
-    <string name="app_name">lsmapp</string>
-    <string name="register_screen_logo_description">Logo</string>
-    <string name="email_placeholder">Email</string>
-    <string name="password_placeholder">Password</string>
-    <string name="confirm_password_placeholder">Confirm Password</string>
-    <string name="already_have_account_login">Already have an account? Log in</string>
-    <string name="register_button_description">Register</string>
-    <string name="foro_de_inclusion_tec_handle">@forodeinclusiontec</string>
-    <string name="bottom_nav_list">List</string>
-    <string name="bottom_nav_hand">Hand</string>
-    <string name="bottom_nav_profile">Profile</string>
+    <string name="app_name">lsm-app</string>
+    <string name="supabase_url">https://dervnjkshlnntwloyzen.supabase.co</string>
+    <string name="supabase_anon_key">sb_publishable_NhAtUUmZnJEosYJF_VDMeA_lSFhFfM7</string>
+    <string name="google_server_client_id">400187479750-l3ifrmg56qlnuggfuten373bv6cg9bpd.apps.googleusercontent.com</string>
 </resources>

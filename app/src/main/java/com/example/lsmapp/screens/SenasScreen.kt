@@ -1,4 +1,4 @@
-package com.example.lsmapp.ui.screens.senas
+package com.example.lsmapp.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,7 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lsmapp.R
-import com.example.lsmapp.ui.screens.senas.components.SenaDetailDialog
+import com.example.lsmapp.components.NavBar
+import com.example.lsmapp.components.NavBarItem
+import com.example.lsmapp.senas.Sena // Correct import
+import com.example.lsmapp.senas.SenasViewModel
+import com.example.lsmapp.senas.SenaDetailDialog
 
 @Composable
 fun SenasScreen(
@@ -35,15 +39,18 @@ fun SenasScreen(
     onSenaClick: (Sena) -> Unit = {}
 ) {
     val senas by viewModel.senas.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
     val filteredSenas = viewModel.getFilteredSenas()
-    
+
     var selectedSena by remember { mutableStateOf<Sena?>(null) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFF47525E),
-        // bottomBar = { BottomNavBar() }
+        bottomBar = { 
+            NavBar(selectedItem = NavBarItem.SIGNS) { 
+                // TODO: Handle navigation
+            }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -53,7 +60,6 @@ fun SenasScreen(
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Título
             Text(
                 text = "Señas",
                 fontSize = 32.sp,
@@ -64,7 +70,6 @@ fun SenasScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Grid de señas - 4 columnas con mejor espaciado
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -75,7 +80,7 @@ fun SenasScreen(
                 items(filteredSenas) { sena ->
                     SenaCard(
                         sena = sena,
-                        onClick = { 
+                        onClick = {
                             selectedSena = sena
                             onSenaClick(sena)
                         }
@@ -83,8 +88,7 @@ fun SenasScreen(
                 }
             }
         }
-        
-        // Mostrar el dialog cuando se selecciona una seña
+
         selectedSena?.let { sena ->
             SenaDetailDialog(
                 sena = sena,
@@ -107,7 +111,6 @@ private fun SenaCard(
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        // Si es la primera seña, mostrar imagen de ejemplo
         if (sena.id == 1) {
             Image(
                 painter = painterResource(R.drawable.logo),
@@ -118,7 +121,6 @@ private fun SenaCard(
                     .clip(RoundedCornerShape(16.dp))
             )
         } else {
-            // Placeholder para las demás señas con el nombre
             Column(
                 modifier = Modifier
                     .fillMaxSize()
