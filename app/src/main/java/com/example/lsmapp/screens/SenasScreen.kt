@@ -27,9 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lsmapp.R
-import com.example.lsmapp.components.NavBar
-import com.example.lsmapp.components.NavBarItem
-import com.example.lsmapp.senas.Sena // Correct import
+import com.example.lsmapp.senas.Sena
 import com.example.lsmapp.senas.SenasViewModel
 import com.example.lsmapp.senas.SenaDetailDialog
 
@@ -46,11 +44,6 @@ fun SenasScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFF47525E),
-        bottomBar = { 
-            NavBar(selectedItem = NavBarItem.SIGNS) { 
-                // TODO: Handle navigation
-            }
-        }
     ) { paddingValues ->
         Column(
             modifier = Modifier

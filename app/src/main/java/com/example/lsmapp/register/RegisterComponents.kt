@@ -46,17 +46,16 @@ import com.example.lsmapp.R
 import com.example.lsmapp.auth.AuthManager
 import com.example.lsmapp.auth.AuthResponse
 import com.example.lsmapp.ui.theme.LsmappTheme
-import com.example.lsmapp.ui.theme.PrimaryBackgroundColor
-import com.example.lsmapp.ui.theme.SecondaryBackgroundColor
-import com.example.lsmapp.ui.theme.ThirdBackgroundColor
 import com.example.lsmapp.ui.theme.black
 import com.example.lsmapp.ui.theme.darkGray
+import com.example.lsmapp.ui.theme.darkPurple
+import com.example.lsmapp.ui.theme.purple
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 
 @Composable
-fun RegisterScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
+fun RegisterScreen(onRegistered: () -> Unit, onBackToLogin: () -> Unit) {
 
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("")}
@@ -92,7 +91,7 @@ fun RegisterScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
                     authManager.LoginGoogleUser()
                         .onEach { result ->
                             if (result is AuthResponse.Success) {
-                                onRegisterClick()
+                                onRegistered()
                             }else{
                                 Log.d("auth", "Google failure")
                             }
@@ -196,7 +195,7 @@ fun RegisterScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
                     authManager.signUpWithEmail(emailValue, passwordValue)
                         .onEach { result ->
                             if (result is AuthResponse.Success) {
-                                onRegisterClick()
+                                onRegistered()
                             }else{
                                 Log.d("auth", "Email failure")
                             }
@@ -211,14 +210,14 @@ fun RegisterScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = "Sign up",
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
             Spacer(modifier = Modifier.height(25.dp))
 
             TextButton(
-                onClick = onLoginClick
+                onClick = onBackToLogin
             ){
                 Text(
                     text = buildAnnotatedString {
@@ -235,7 +234,7 @@ fun RegisterScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
                             color = Color.White
                         )
                         ) {
-                            append("Log In")
+                            append("Log in")
                         }
                     }
                 )
@@ -288,7 +287,7 @@ fun RegisterHeader() {
 @Composable
 private fun RegisterPreview() {
     LsmappTheme {
-        RegisterScreen(onLoginClick = {}, onRegisterClick = {})
+        RegisterScreen(onRegistered = {}, onBackToLogin = {})
     }
 }
 
@@ -302,9 +301,9 @@ fun Gradient(){
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        PrimaryBackgroundColor,
-                        ThirdBackgroundColor,
-                        SecondaryBackgroundColor
+                        purple,
+                        darkPurple,
+                        black
                     )
                 )
             )

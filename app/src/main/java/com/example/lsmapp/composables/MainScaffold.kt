@@ -1,113 +1,83 @@
 package com.example.lsmapp.composables
+
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.lsmapp.components.BottomNavBar
 import com.example.lsmapp.navigation.Route
-import com.example.lsmapp.screens.HomeScreen
+import com.example.lsmapp.screens.LessonScreen
 import com.example.lsmapp.screens.ProfileScreen
-import com.example.lsmapp.screens.SettingsScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-
-
-data class BottomItem(val route: String, val label: String, val icon: ImageVector)
+import com.example.lsmapp.screens.RankingScreen
+import com.example.lsmapp.screens.SenasScreen
+import com.example.lsmapp.senas.SenasViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScaffold(onLogoutClick: () -> Unit, onNavigateToAuth: () -> Unit) {
-    val nav = rememberNavController()
-    val items = listOf(
-        BottomItem(Route.Home.route, "Inicio", Icons.Filled.Home),
-        BottomItem(Route.Profile.route, "Perfil", Icons.Filled.Person),
-        BottomItem(Route.Settings.route, "Config", Icons.Filled.Settings),
-    )
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+fun MainScaffold(mainNavController: NavHostController) {
+    val innerNavController = rememberNavController()
+    val currentRoute = currentRoute(innerNavController)
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Text("Navegación", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
-                DrawerItem(nav, label = "Inicio", dest = Route.Home.route, drawerState, scope)
-                DrawerItem(nav, label = "Perfil", dest = Route.Profile.route, drawerState, scope)
-                DrawerItem(nav, label = "Configuración", dest = Route.Settings.route, drawerState, scope)
-                Divider()
-                NavigationDrawerItem(
-                    label = { Text("Cerrar sesión") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onLogoutClick()       // pone bandera en false
-                        onNavigateToAuth()    // navega inmediato al flujo Auth
-                    }
+    // ViewModel compartido para Señas
+    val senasViewModel: SenasViewModel = viewModel()
+
+    val title = when (currentRoute) {
+        Route.Lesson.route -> "Temas"
+        Route.Senas.route -> "Señas"
+        Route.Ranking.route -> "Ranking"
+        Route.Profile.route -> "Usuario"
+        else -> ""
+    }
+
+    Scaffold(
+        containerColor = Color(0xFF47525E),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF47525E),
+                    titleContentColor = Color.White
                 )
-            }
+            )
+        },
+        bottomBar = {
+            BottomNavBar(navController = innerNavController)
         }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Template App") },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                        }
-                    }
-                )
-            },
-            bottomBar = {
-                NavigationBar {
-                    val current = currentRoute(nav)
-                    items.forEach { item ->
-                        NavigationBarItem(
-                            selected = current == item.route,
-                            onClick = { if (current != item.route) nav.navigate(item.route) },
-                            icon = { Icon(item.icon, contentDescription = item.label) },
-                            label = { Text(item.label) }
-                        )
-                    }
-                }
+    ) { innerPadding ->
+        NavHost(
+            navController = innerNavController,
+            startDestination = Route.Lesson.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            // Pasar el MAIN NavController a las pantallas que necesitan navegar fuera del scaffold
+            composable(Route.Lesson.route) {
+                LessonScreen(navController = mainNavController)
             }
-        ) { innerPadding ->
-            NavHost(navController = nav, startDestination = Route.Home.route, modifier = Modifier.padding(innerPadding)) {
-                composable(Route.Home.route)     { HomeScreen() }
-                composable(Route.Profile.route)  { ProfileScreen() }
-                composable(Route.Settings.route) { SettingsScreen() }
+            composable(Route.Senas.route) {
+                SenasScreen(viewModel = senasViewModel)
+            }
+            composable(Route.Ranking.route) {
+                RankingScreen()
+            }
+            composable(Route.Profile.route) {
+                ProfileScreen()
             }
         }
     }
-}
-
-@Composable
-private fun DrawerItem(
-    nav: NavHostController,
-    label: String,
-    dest: String,
-    drawerState: DrawerState,
-    scope: CoroutineScope
-) {
-    NavigationDrawerItem(
-        label = { Text(label) },
-        selected = currentRoute(nav) == dest,
-        onClick = {
-            nav.navigate(dest) { launchSingleTop = true }
-            scope.launch { drawerState.close() }
-        }
-    )
 }
 
 @Composable

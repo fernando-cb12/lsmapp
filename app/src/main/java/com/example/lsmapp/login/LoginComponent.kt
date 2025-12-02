@@ -1,12 +1,34 @@
-package com.example.lsmapp.screens
+package com.example.lsmapp.login
 
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,17 +45,27 @@ import androidx.compose.ui.unit.dp
 import com.example.lsmapp.R
 import com.example.lsmapp.auth.AuthManager
 import com.example.lsmapp.auth.AuthResponse
-import com.example.lsmapp.ui.theme.*
+import com.example.lsmapp.ui.theme.LsmappTheme
+import com.example.lsmapp.ui.theme.PrimaryBackgroundColor
+import com.example.lsmapp.ui.theme.SecondaryBackgroundColor
+import com.example.lsmapp.ui.theme.ThirdBackgroundColor
+import com.example.lsmapp.ui.theme.black
+import com.example.lsmapp.ui.theme.darkGray
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+
 @Composable
-fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
+fun LoginScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
+
     var emailValue by remember { mutableStateOf("") }
-    var passwordValue by remember { mutableStateOf("") }
+    var passwordValue by remember { mutableStateOf("")}
     val context = LocalContext.current
-    val authManager = remember { AuthManager(context) }
+    val authManager = remember {
+        AuthManager(context)
+    }
     val coroutineScope = rememberCoroutineScope()
+
 
     Box(
         modifier = Modifier
@@ -50,21 +82,24 @@ fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
                 .padding(top = 110.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LoginHeader()
+
+            RegisterHeader()
 
             Spacer(modifier = Modifier.height(44.dp))
 
-            GoogleSignInButton(onClick = {
-                authManager.LoginGoogleUser()
-                    .onEach { result ->
-                        if (result is AuthResponse.Success) {
-                            onLogin()
-                        } else {
-                            Log.d("auth", "Google failure")
+            GoogleSignInButton(
+                onClick = {
+                    authManager.LoginGoogleUser()
+                        .onEach { result ->
+                            if (result is AuthResponse.Success) {
+                                onRegisterClick()
+                            }else{
+                                Log.d("auth", "Google failure")
+                            }
                         }
-                    }
-                    .launchIn(coroutineScope)
-            })
+                        .launchIn(coroutineScope)
+                }
+            )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -76,11 +111,13 @@ fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
                         .height(1.dp)
                         .background(Color.White.copy(alpha = 0.2f))
                 )
+
                 Text(
-                    text = "Or",
+                    text= "Or",
                     color = Color.White.copy(alpha = 0.7f),
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
+
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -89,16 +126,20 @@ fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
                 )
             }
 
-            Column(horizontalAlignment = Alignment.Start) {
+            Column(
+                horizontalAlignment = Alignment.Start
+            ) {
                 Text(
                     text = "Email",
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 TextField(
                     value = emailValue,
-                    onValueChange = { newValue -> emailValue = newValue },
+                    onValueChange = {newValue -> emailValue = newValue},
                     placeholder = {
                         Text(
                             text = "inclusion@example.com",
@@ -112,21 +153,25 @@ fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
                         focusedContainerColor = darkGray,
                         unfocusedContainerColor = darkGray
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier= Modifier.fillMaxWidth()
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
 
-            Column(horizontalAlignment = Alignment.Start) {
+            Column(
+                horizontalAlignment = Alignment.Start
+            ) {
                 Text(
                     text = "Password",
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 TextField(
                     value = passwordValue,
-                    onValueChange = { newValue -> passwordValue = newValue },
+                    onValueChange = {newValue -> passwordValue = newValue},
                     placeholder = {
                         Text(
                             text = "Enter your password",
@@ -141,35 +186,40 @@ fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
                         focusedContainerColor = darkGray,
                         unfocusedContainerColor = darkGray
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier= Modifier.fillMaxWidth()
                 )
             }
             Spacer(modifier = Modifier.height(25.dp))
 
             Button(
                 onClick = {
-                    authManager.signInWithEmail(emailValue, passwordValue)
+                    authManager.signUpWithEmail(emailValue, passwordValue)
                         .onEach { result ->
                             if (result is AuthResponse.Success) {
-                                onLogin()
-                            } else {
+                                onRegisterClick()
+                            }else{
                                 Log.d("auth", "Email failure")
                             }
                         }
                         .launchIn(coroutineScope)
+
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                ),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Log In",
+                    text = "Sign Up",
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
             Spacer(modifier = Modifier.height(25.dp))
 
-            TextButton(onClick = onGoToRegister) {
+            TextButton(
+                onClick = onLoginClick
+            ){
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
@@ -177,26 +227,27 @@ fun LoginScreen(onLogin: () -> Unit, onGoToRegister: () -> Unit) {
                                 fontWeight = FontWeight.Light,
                                 color = Color.White.copy(alpha = 0.8f)
                             )
-                        ) {
-                            append("Don't have an account? ")
+                        ){
+                            append("Already have an account? ")
                         }
-                        withStyle(
-                            style = SpanStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
+                        withStyle(style = SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                         ) {
-                            append("Sign Up")
+                            append("Log In")
                         }
                     }
                 )
             }
+
         }
     }
+
 }
 
 @Composable
-private fun GoogleSignInButton(onClick: () -> Unit) {
+private fun GoogleSignInButton(onClick: () -> Unit = {}) {
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(10.dp),
@@ -213,27 +264,37 @@ private fun GoogleSignInButton(onClick: () -> Unit) {
             color = Color.White,
             modifier = Modifier.padding(vertical = 4.dp)
         )
+
     }
 }
-
 @Composable
-fun LoginHeader() {
+fun RegisterHeader() {
     Text(
-        text = "Iniciar Sesión",
+        text = "Crear una cuenta",
         style = MaterialTheme.typography.titleLarge,
         color = Color.White,
         fontWeight = FontWeight.Bold
     )
     Spacer(modifier = Modifier.padding(8.dp))
+
     Text(
-        text = "¡Bienvenido de vuelta!",
+        text = "Ingresa tus datos para crear una cuenta",
         style = MaterialTheme.typography.bodyMedium,
         color = Color.White
     )
 }
 
+@Preview
 @Composable
-fun Gradient() {
+private fun RegisterPreview() {
+    LsmappTheme {
+        LoginScreen(onLoginClick = {}, onRegisterClick = {})
+    }
+}
+
+
+@Composable
+fun Gradient(){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,12 +309,4 @@ fun Gradient() {
                 )
             )
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LsmappTheme {
-        LoginScreen(onLogin = {}, onGoToRegister = {})
-    }
 }
