@@ -4,33 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lsmapp.composables.MainScaffold
 import com.example.lsmapp.navigation.Route
+import com.example.lsmapp.register.RegisterScreen
 import com.example.lsmapp.screens.LoginScreen
-//import com.example.lsmapp.screens.RegisterScreen
-import com.example.lsmapp.login.RegisterScreen
 import com.example.lsmapp.ui.theme.LsmappTheme
 import com.example.lsmapp.viewModel.AppViewModel
 
@@ -41,10 +27,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             LsmappTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    //AppRoot(
-                        //modifier = Modifier.padding(innerPadding)
-                    //)
-                    RegisterScreen()
+                    AppRoot(
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
@@ -57,13 +42,8 @@ fun AppRoot(modifier: Modifier = Modifier) {
     val vm: AppViewModel = viewModel()
     val nav = rememberNavController()
 
-    NavHost(navController = nav, startDestination = Route.Splash.route) {
-        composable(Route.Splash.route) {
-            SplashScreen(
-                vm = vm,
-                nav = nav
-            )
-        }
+    // Se inicia directamente en el flujo de autenticación
+    NavHost(navController = nav, startDestination = Route.Auth.route, modifier = modifier) {
 
         // AUTH FLOW (sin Drawer/BottomBar)
         composable(Route.Auth.route) {
@@ -71,7 +51,8 @@ fun AppRoot(modifier: Modifier = Modifier) {
                 onLoggedIn = {
                     vm.login()
                     nav.navigate(Route.Main.route) {
-                        popUpTo(Route.Splash.route) { inclusive = true }
+                        // Al iniciar sesión, se limpia el historial de autenticación
+                        popUpTo(Route.Auth.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -83,12 +64,12 @@ fun AppRoot(modifier: Modifier = Modifier) {
             MainScaffold(
                 onLogoutClick = { vm.logout() },
                 onNavigateToAuth = {
-                    nav.navigate(Route.Auth.route) { popUpTo(0) } // limpia back stack
+                    // Al cerrar sesión, se navega a la pantalla de autenticación y se limpia el historial
+                    nav.navigate(Route.Auth.route) { popUpTo(0) }
                 }
             )
         }
     }
-
 }
 
 @Composable
@@ -102,45 +83,10 @@ fun AuthNavHost(onLoggedIn: () -> Unit) {
             )
         }
         composable(Route.Register.route) {
-            //RegisterScreen(
-              //  onRegistered = { onLoggedIn() },
-                //onBackToLogin = { nav.popBackStack() }
-            //)
+            RegisterScreen(
+                onLoginClick = { nav.popBackStack() },
+                onRegisterClick = { onLoggedIn() }
+            )
         }
     }
 }
-
-@Composable
-fun SplashScreen(vm: AppViewModel, nav: NavHostController) {
-
-    val state by vm.auth.collectAsState()
-
-
-    when {
-
-        state.isLoading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Spacer(Modifier.height(12.dp))
-                    Text("Cargando...")
-                }
-            }
-        }
-
-        else -> {
-            if (state.isLoggedIn) {
-                nav.navigate(Route.Main.route) {
-                    popUpTo(Route.Splash.route) { inclusive = true }
-                }
-            } else {
-                nav.navigate(Route.Auth.route) {
-                    popUpTo(Route.Splash.route) { inclusive = true }
-                }
-            }
-        }
-    }
-
-}
-
-

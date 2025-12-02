@@ -5,7 +5,6 @@ build/
 .externalNativeBuild/
 
 local.properties
-gradle.properties
 
 .idea/
 *.iml
@@ -28,3 +27,6 @@ captures/
 ./app/src/main/res/values/secrets.xml
 
 .env
+
+# Profiling files
+*.hprof
